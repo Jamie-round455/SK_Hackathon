@@ -1,33 +1,37 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+
+using System.Reflection;
 
 internal class Program
 {
     private static async Task Main(string[] args)
     {
-        var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings()
-        {
-            Args = args
-        });
+        var builder = Host.CreateDefaultBuilder(args); // Change to CreateDefaultBuilder
 
-        //builder.ConfigureAppConfiguration((context, config) =>
-        //    {
-        //        config
-        //            .AddUserSecrets(Assembly.GetExecutingAssembly());
-        //    });
+        builder.ConfigureAppConfiguration((context, config) =>
+            {
+                config
+                    .AddUserSecrets(Assembly.GetExecutingAssembly());
+            });
 
         // don't forget to add your api key / endpoint / deployment name/and model id ( deployments found here: https://oai.azure.com/ )
-        builder.Services
-            //.AddAzureOpenAIAudioToText()
-            //.AddAzureOpenAITextEmbeddingGeneration()
-            //.AddAzureOpenAITextToImage()
-            .AddAzureOpenAIChatCompletion(
-                "pp-hack-gtp4o",
-                "https://pp-azure-open-ai-test.openai.azure.com/",
-                "",
-                modelId: "gpt-4o");
+        builder.ConfigureServices((context, services) =>
+        {
+            var aiKey = context.Configuration["ai_key"];
+            services
+                //.AddAzureOpenAIAudioToText()
+                //.AddAzureOpenAITextEmbeddingGeneration()
+                //.AddAzureOpenAITextToImage()
+                .AddAzureOpenAIChatCompletion(
+                    "pp-hack-gtp4o",
+                    "https://pp-azure-open-ai-test.openai.azure.com/",
+                    context.Configuration["ai_key"] ?? "",
+                    modelId: "gpt-4o");
+        });
 
         var app = builder.Build();
 
