@@ -14,10 +14,4 @@ public class NativeFunctions
         Console.WriteLine("I don't know");
         Console.ForegroundColor = previousColor;
     }
-
-    //[KernelFunction]
-    //public static string GetCurrentTime()
-    //{
-    //    return DateTime.UtcNow.ToString();
-    //}
 }
