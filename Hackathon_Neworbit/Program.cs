@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Hackathon_Neworbit.Persona;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-
 using System.Reflection;
 
 internal class Program
@@ -13,10 +13,10 @@ internal class Program
         var builder = Host.CreateDefaultBuilder(args); // Change to CreateDefaultBuilder
 
         builder.ConfigureAppConfiguration((context, config) =>
-            {
-                config
-                    .AddUserSecrets(Assembly.GetExecutingAssembly());
-            });
+        {
+            config
+                .AddUserSecrets(Assembly.GetExecutingAssembly());
+        });
 
         // don't forget to add your api key / endpoint / deployment name/and model id ( deployments found here: https://oai.azure.com/ )
         builder.ConfigureServices((context, services) =>
@@ -29,7 +29,7 @@ internal class Program
                 .AddAzureOpenAIChatCompletion(
                     "pp-hack-gtp4o",
                     "https://pp-azure-open-ai-test.openai.azure.com/",
-                    context.Configuration["ai_key"] ?? "",
+                    aiKey ?? "",
                     modelId: "gpt-4o");
         });
 
@@ -37,29 +37,23 @@ internal class Program
 
         var chat = app.Services.GetRequiredService<IChatCompletionService>();
 
-        var chatHistory = new ChatHistory();
+        var chatHistory = ChatbotPersona.SetupChatbotPersona();
 
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("AI: What am I?");
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        while (true)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("User: ");
+            var prompt = Console.ReadLine();
+            chatHistory.AddUserMessage(prompt!);
 
-        Console.WriteLine("Jay: ");
-        var whatAmI = Console.ReadLine();
-        chatHistory.AddSystemMessage(whatAmI!);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("AI: ");
 
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("AI: Cool! How can I help?");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-
-        Console.WriteLine("Jay: ");
-        var prompt = Console.ReadLine();
-        chatHistory.AddUserMessage(prompt!);
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("AI: ");
-        var response = await chat.GetChatMessageContentsAsync(chatHistory);
-        var lastMessage = response.Last();
-        Console.WriteLine(lastMessage);
+            var response = await chat.GetChatMessageContentsAsync(chatHistory);
+            var lastMessage = response.Last();
+            Console.WriteLine(lastMessage);
+            Console.WriteLine();
+        }
     }
 }
 
