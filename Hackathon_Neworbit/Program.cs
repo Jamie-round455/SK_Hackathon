@@ -13,10 +13,10 @@ internal class Program
         var builder = Host.CreateDefaultBuilder(args); // Change to CreateDefaultBuilder
 
         builder.ConfigureAppConfiguration((context, config) =>
-        {
-            config
-                .AddUserSecrets(Assembly.GetExecutingAssembly());
-        });
+            {
+                config
+                    .AddUserSecrets(Assembly.GetExecutingAssembly());
+            });
 
         // don't forget to add your api key / endpoint / deployment name/and model id ( deployments found here: https://oai.azure.com/ )
         builder.ConfigureServices((context, services) =>

@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Hackathon_Neworbit</RootNamespace>
         <UserSecretsId>757603ee-4ab1-4863-9e8f-6411ebfd5152</UserSecretsId>
-  </PropertyGroup>
+    </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Azure.AI.OpenAI" Version="2.0.0-beta.4" />
