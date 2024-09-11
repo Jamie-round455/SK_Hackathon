@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using System.Net;
 using System.Reflection;
 using Hackathon_Neworbit;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -50,9 +49,11 @@ internal class Program
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("AI: ");
 
-            var response = await chat.GetChatMessageContentsAsync(chatHistory, openAIPromptExecutionSettings, kernel);
-            var lastMessage = response.Last();
-            Console.WriteLine(lastMessage);
+            var response = await chat.GetChatMessageContentAsync(chatHistory, openAIPromptExecutionSettings, kernel);
+            Console.WriteLine(response);
+
+            chatHistory.AddMessage(AuthorRole.Assistant, response.Content!);
+
             Console.WriteLine();
         }
     }

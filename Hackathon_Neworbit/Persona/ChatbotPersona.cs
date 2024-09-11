@@ -1,5 +1,5 @@
-﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
+﻿using Microsoft.SemanticKernel.ChatCompletion;
+using System.Text.Json;
 
 namespace Hackathon_Neworbit.Persona;
 
@@ -11,13 +11,13 @@ internal class ChatbotPersona
         return new ChatHistory(lines);
     }
 
-    private static IEnumerable<ChatMessageContent> GetPersonaLines()
+    private static string GetPersonaLines()
     {
         var personaConfigurationFile = Path.Combine(Directory.GetCurrentDirectory(), "persona.json");
 
-        var lines = File.ReadAllLines(personaConfigurationFile);
+        var fileContent = File.ReadAllText(personaConfigurationFile);
+        var lines = JsonSerializer.Deserialize<IEnumerable<string>>(fileContent);
 
-        foreach (var line in lines)
-            yield return new ChatMessageContent(AuthorRole.System, line);
+        return string.Join(". ", lines!);
     }
 }
