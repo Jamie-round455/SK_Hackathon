@@ -6,7 +6,7 @@ namespace Hackathon_Neworbit;
 public class NativeFunctions
 {
     [KernelFunction]
-    [Description("Handle the errors and any other problems with generating the response")]
+    [Description("Handles the errors, unrecogizable prompts and any other issue with generating the response, should also be invoked when the response cannot be generated")]
     public static void ErrorOrUnableToGenerateTheResponse()
     {
         var previousColor = Console.ForegroundColor;
