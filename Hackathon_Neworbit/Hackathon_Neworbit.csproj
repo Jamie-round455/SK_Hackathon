@@ -15,4 +15,10 @@
       <PackageReference Include="Microsoft.SemanticKernel" Version="1.18.1-rc" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="persona.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
