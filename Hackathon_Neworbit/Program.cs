@@ -4,7 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using System.Net;
 using System.Reflection;
+using Hackathon_Neworbit;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 internal class Program
 {
@@ -18,27 +21,25 @@ internal class Program
                 .AddUserSecrets(Assembly.GetExecutingAssembly());
         });
 
-        // don't forget to add your api key / endpoint / deployment name/and model id ( deployments found here: https://oai.azure.com/ )
-        builder.ConfigureServices((context, services) =>
-        {
-            var aiKey = context.Configuration["ai_key"];
-            services
-                //.AddAzureOpenAIAudioToText()
-                //.AddAzureOpenAITextEmbeddingGeneration()
-                //.AddAzureOpenAITextToImage()
-                .AddAzureOpenAIChatCompletion(
-                    "pp-hack-gtp4o",
-                    "https://pp-azure-open-ai-test.openai.azure.com/",
-                    aiKey ?? "",
-                    modelId: "gpt-4o");
-        });
-
         var app = builder.Build();
 
-        var chat = app.Services.GetRequiredService<IChatCompletionService>();
+        var aiKey = app.Services.GetRequiredService<IConfiguration>()["ai_key"];
+        var kernelBuilder = Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(
+            "pp-hack-gtp4o",
+            "https://pp-azure-open-ai-test.openai.azure.com/",
+            aiKey ?? "",
+            modelId: "gpt-4o");
+        var kernel = kernelBuilder.Build();
+        kernel.ImportPluginFromType<NativeFunctions>();
+
+        var chat = kernel.GetRequiredService<IChatCompletionService>();
 
         var chatHistory = ChatbotPersona.SetupChatbotPersona();
 
+        OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+        {
+            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+        };
         while (true)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -49,7 +50,7 @@ internal class Program
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("AI: ");
 
-            var response = await chat.GetChatMessageContentsAsync(chatHistory);
+            var response = await chat.GetChatMessageContentsAsync(chatHistory, openAIPromptExecutionSettings, kernel);
             var lastMessage = response.Last();
             Console.WriteLine(lastMessage);
             Console.WriteLine();
